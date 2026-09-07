@@ -1,6 +1,7 @@
 locals {
   single_nat_key = var.single_nat ? var.single_nat_subnet_key : null
   nat_map        = var.enable_nat ? (var.single_nat ? toset([local.single_nat_key]) : toset(keys(var.private_subnet))) : toset([])
+  tags = merge(var.tags, { env = "${terraform.workspace}" })
 }
 
 resource "aws_vpc" "main" {
@@ -8,7 +9,7 @@ resource "aws_vpc" "main" {
   instance_tenancy = "default"
   enable_dns_hostnames = true
   enable_dns_support = true
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "aws_subnet" "private" {
@@ -17,7 +18,7 @@ resource "aws_subnet" "private" {
   cidr_block = each.value.cidr_block
   availability_zone = each.value.az
 
-  tags = merge(var.tags, { Name = "Private_Subnet_${each.key}" })
+  tags = merge(local.tags, { Name = "Private_Subnet_${each.key}" })
 }
 
 resource "aws_subnet" "public" {
@@ -26,7 +27,7 @@ resource "aws_subnet" "public" {
   cidr_block = each.value.cidr_block
   availability_zone = each.value.az
 
-  tags = merge(var.tags, {Name = "Public_Subnet_${each.key}" })
+  tags = merge(local.tags, {Name = "Public_Subnet_${each.key}" })
 
 
 }
@@ -36,17 +37,17 @@ resource "aws_subnet" "rds_subnet" {
   vpc_id     = aws_vpc.main.id
   cidr_block = each.value.cidr_block
   availability_zone = each.value.az
-  tags = merge(var.tags, { Name = "RDS_Subnet_${each.key}" })
+  tags = merge(local.tags, { Name = "RDS_Subnet_${each.key}" })
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "aws_route" "public" {
@@ -66,7 +67,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_eip" "nat" {
   for_each = local.nat_map
   domain   = "vpc" 
-  tags = merge(var.tags, { Name = "EIP for ${each.key}" })
+  tags = merge(local.tags, { Name = "EIP for ${each.key}" })
 }
 
 resource "aws_nat_gateway" "nat_gw" {
@@ -74,7 +75,7 @@ resource "aws_nat_gateway" "nat_gw" {
   allocation_id = aws_eip.nat[each.key].id
   subnet_id     = aws_subnet.public[each.key].id
 
-  tags = merge(var.tags, { Name = "NAT Gateway for ${each.key}" })
+  tags = merge(local.tags, { Name = "NAT Gateway for ${each.key}" })
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
   # on the Internet Gateway for the VPC.
@@ -93,7 +94,7 @@ resource "aws_route_table" "private" {
     }
   }
 
-  tags = merge(var.tags, { Name = "Private Route Table for ${each.key}" })
+  tags = merge(local.tags, { Name = "Private Route Table for ${each.key}" })
 }
 
 resource "aws_route_table_association" "private" {

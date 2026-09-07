@@ -12,8 +12,8 @@ terraform {
     }
 
     backend "s3" {
-    bucket         = "project-letz-go-tfstate"
-    key            = "project01-infra-automation/terraform.tfstate"
+    bucket         = "project-01-tfstate"
+    key            = "terraform.tfstate"
     region         = "ap-south-1"
     use_lockfile = true
     encrypt        = true

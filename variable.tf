@@ -26,3 +26,13 @@ variable "rds_subnet" {
     az         = string
    }))
 }
+
+variable "tags"{
+    description = "resource tags"
+    type = map(string)
+    default = {
+        createdBy= "Terraform",
+        project = "Project01",
+
+    }
+}
