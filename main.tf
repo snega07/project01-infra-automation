@@ -4,6 +4,8 @@ module "networking" {
   public_subnet   = var.public_subnet
   private_subnet  = var.private_subnet
   rds_subnet      = var.rds_subnet
+  enable_nat = true
+  single_nat = false
   tags = var.tags 
 
 }
