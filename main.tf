@@ -27,6 +27,7 @@ module "eks-cluster" {
   endpoint_public_access = true
   endpoint_private_access = true
   public_access_cidrs = ["0.0.0.0/0"]
+  vpc_id = module.networking.vpc_id
 
   node_groups = {
     on_demand = {

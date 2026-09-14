@@ -51,3 +51,26 @@ variable node_groups {
     }))
 }
 
+variable enable_irsa {
+    type    = bool
+    default = false
+}
+
+variable coredns_version {
+    type    = string
+    default = ""
+}
+
+variable kube_proxy_version {
+    type    = string
+    default = ""
+}
+ 
+variable vpc_cni_version {
+    type    = string
+    default = ""
+}
+
+variable vpc_id {
+    type = string
+}
